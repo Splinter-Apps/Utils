@@ -17,6 +17,13 @@ jobs:
       ORG_TOKEN: ${{ secrets.ADMIN_ORG_TOKEN }}
       SDK_LINK: github.com/Splinter-Apps/Splinter-SDK.git
     steps:
+      - name: Check token
+        run: |
+          if [ -z "$ORG_TOKEN" ]; then
+            echo "ORG_TOKEN is EMPTY"
+            exit 1
+          fi
+
       - name: Normalize app name
         run: |
           RAW_NAME="${{ github.event.inputs.app_name }}"
