@@ -14,7 +14,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: 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
+      GITHUB_TOKEN: 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
       SDK_LINK: github.com/Splinter-Apps/Splinter-SDK.git
     steps:
       - name: Normalize app name
@@ -33,7 +33,7 @@ jobs:
           echo "git clone $SDK_LINK"
           git config --global user.name "s4mkofftrid"
           git config --global user.email "s4mkofftrid@itrident.agency"
-          git clone https://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@$SDK_LINK
+          git clone https://$GITHUB_TOKEN@$SDK_LINK
           cd Splinter-SDK
           curl -s -X DELETE \
             -H "Authorization: token $GITHUB_TOKEN" \
