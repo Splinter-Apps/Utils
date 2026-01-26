@@ -9,12 +9,12 @@ on:
       app_name:
         description: "Назва додатку"
         required: true
-
+  
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.ADMIN_ORG_TOKEN }}
       SDK_LINK: github.com/Splinter-Apps/Splinter-SDK.git
     steps:
       - name: Normalize app name
@@ -26,7 +26,6 @@ jobs:
           echo "SAFE_NAME=$SAFE_NAME" >> $GITHUB_ENV
           FOLDER_NAME="${{ github.event.inputs.ticket_number }}-$SAFE_NAME"
           echo "FOLDER_NAME=$FOLDER_NAME" >> $GITHUB_ENV
-          echo "GITHUB_TOKEN=$GITHUB_TOKEN"
 
       - name: Clone Sdk
         run: |
