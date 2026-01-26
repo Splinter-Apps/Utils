@@ -1,0 +1,51 @@
+name: Create Repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticket_number:
+        description: "Номер тікету"
+        required: true
+      app_name:
+        description: "Назва додатку"
+        required: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: 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
+      SDK_LINK: github.com/Splinter-Apps/Splinter-SDK.git
+    steps:
+      - name: Normalize app name
+        run: |
+          RAW_NAME="${{ github.event.inputs.app_name }}"
+          SAFE_NAME=$(echo "$RAW_NAME" \
+            | sed 's/[[:punct:][:space:]]\+/-/g' \
+            | sed 's/^-//;s/-$//')
+          echo "SAFE_NAME=$SAFE_NAME" >> $GITHUB_ENV
+          FOLDER_NAME="${{ github.event.inputs.ticket_number }}-$SAFE_NAME"
+          echo "FOLDER_NAME=$FOLDER_NAME" >> $GITHUB_ENV
+          echo "GITHUB_TOKEN=$GITHUB_TOKEN"
+
+      - name: Clone Sdk
+        run: |
+          echo "git clone $SDK_LINK"
+          git config --global user.name "s4mkofftrid"
+          git config --global user.email "s4mkofftrid@itrident.agency"
+          git clone https://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@$SDK_LINK
+          cd Splinter-SDK
+          curl -s -X DELETE \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/Splinter-Apps/${FOLDER_NAME}
+          curl -s -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/orgs/Splinter-Apps/repos \
+            -d "{\"name\":\"${FOLDER_NAME}\",\"private\":true}"
+          git remote remove origin
+          git remote add origin https://$GITHUB_TOKEN@github.com/Splinter-Apps/${{ env.FOLDER_NAME }}.git
+          git branch -M main
+          git add .
+          git push -u origin main
