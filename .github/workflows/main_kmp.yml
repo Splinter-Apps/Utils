@@ -1,0 +1,57 @@
+name: Create KMP Repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      ticket_number:
+        description: "Номер тікету"
+        required: true
+      app_name:
+        description: "Назва додатку"
+        required: true
+  
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      ORG_TOKEN: ${{ secrets.ORG_ADMIN_TOKEN }}
+      SDK_LINK: github.com/Splinter-Apps/Splinter-SDK-KMP.git
+    steps:
+      - name: Check token
+        run: |
+          if [ -z "$ORG_TOKEN" ]; then
+            echo "ORG_TOKEN is EMPTY"
+            exit 1
+          fi
+
+      - name: Normalize app name
+        run: |
+          RAW_NAME="${{ github.event.inputs.app_name }}"
+          SAFE_NAME=$(echo "$RAW_NAME" \
+            | sed 's/[[:punct:][:space:]]\+/-/g' \
+            | sed 's/^-//;s/-$//')
+          echo "SAFE_NAME=$SAFE_NAME" >> $GITHUB_ENV
+          FOLDER_NAME="${{ github.event.inputs.ticket_number }}-$SAFE_NAME"
+          echo "FOLDER_NAME=$FOLDER_NAME" >> $GITHUB_ENV
+
+      - name: Clone Sdk
+        run: |
+          git config --global user.name "s4mkofftrid"
+          git config --global user.email "s4mkofftrid@itrident.agency"
+          git clone https://x-access-token:$ORG_TOKEN@$SDK_LINK
+          cd Splinter-SDK
+          curl -s -X DELETE \
+            -H "Authorization: token $ORG_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/Splinter-Apps/${FOLDER_NAME}
+          curl -s -X POST \
+            -H "Authorization: token $ORG_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/orgs/Splinter-Apps/repos \
+            -d "{\"name\":\"${FOLDER_NAME}\",\"private\":true}"
+          rm -rf .git
+          git init -b main
+          git add .
+          git commit -m "Initial commit"
+          git remote add origin https://x-access-token:$ORG_TOKEN@github.com/Splinter-Apps/${{ env.FOLDER_NAME }}.git
+          git push -u origin main --force
