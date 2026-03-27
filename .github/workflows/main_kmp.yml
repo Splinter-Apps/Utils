@@ -39,7 +39,7 @@ jobs:
           git config --global user.name "s4mkofftrid"
           git config --global user.email "s4mkofftrid@itrident.agency"
           git clone https://x-access-token:$ORG_TOKEN@$SDK_LINK
-          cd Splinter-SDK
+          cd Splinter-SDK-KMP
           curl -s -X DELETE \
             -H "Authorization: token $ORG_TOKEN" \
             -H "Accept: application/vnd.github+json" \
